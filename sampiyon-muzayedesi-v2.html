@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="tr"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Şampiyon Müzayedesi</title>
+<style>
+:root{--bg:#eef2f8;--p:#fff;--b:#c5d0e2;--g:#8a6200;--t:#14203a;--m:#5b6b86;--bl:#0a7fc2;--rd:#c4284a;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0a1220;--p:#101c30;--b:#2a3a55;--g:#e8c872;--t:#e9eef7;--m:#8da0bd;--bl:#3bc3ff;--rd:#ff5c7a}}
+:root[data-theme="dark"]{--bg:#0a1220;--p:#101c30;--b:#2a3a55;--g:#e8c872;--t:#e9eef7;--m:#8da0bd;--bl:#3bc3ff;--rd:#ff5c7a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--t);font:14px/1.45 "Trebuchet MS","Segoe UI",system-ui,sans-serif}
+.w{max-width:1180px;margin:auto;padding:12px}
+h1,h2,h3{margin:.2em 0;color:var(--g);font-family:Georgia,"Times New Roman",serif}
+.p{background:var(--p);border:1px solid var(--b);border-radius:10px;padding:10px}
+.row{display:grid;grid-template-columns:1fr 2.2fr 1fr;gap:10px;align-items:start}
+.sim{display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:10px;align-items:start}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media(max-width:900px){.row,.sim,.two{grid-template-columns:1fr}}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:8px;margin-top:10px}
+.card{border:1px solid var(--b);border-radius:8px;overflow:hidden;background:var(--p);text-align:center;padding-bottom:4px}
+.card.pk{cursor:pointer;border-color:var(--g);box-shadow:0 0 0 1px var(--g)}
+.art{position:relative;height:130px;overflow:hidden;display:grid;place-items:center;background:linear-gradient(135deg,hsl(var(--h) 55% 38%),hsl(calc(var(--h) + 40) 60% 14%));color:#fff;font:700 28px Georgia,serif}
+.art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top}
+.tag{position:absolute;z-index:2;top:4px;right:4px;font:700 9px sans-serif;padding:2px 5px;border-radius:4px;font-style:normal;color:#fff}
+.tag.M{background:#8a6200}.tag.N{background:#9b2240}
+.card small,.slot small{display:block;color:var(--g);font-size:10px}
+.slot{display:flex;gap:8px;align-items:center;border:1px dashed var(--b);border-radius:8px;padding:4px;margin:5px 0;min-height:48px}
+.slot .art{width:40px;height:40px;font-size:14px;border-radius:6px;flex:none}
+button,select,input{font:inherit;color:var(--t);background:var(--p);border:1px solid var(--g);border-radius:6px;padding:6px 12px}
+button{cursor:pointer}button:disabled{opacity:.4;cursor:default}
+button.main{background:var(--g);color:var(--bg);font-weight:700}
+button:focus-visible,select:focus-visible,input:focus-visible,.card:focus-visible{outline:2px solid var(--bl);outline-offset:2px}
+.bar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.big{font:700 40px Georgia,serif}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0}
+.stats div{border:1px solid var(--b);border-radius:6px;padding:4px 6px;text-align:center;font-size:12px;color:var(--m)}
+.stats b{display:block;font-size:18px;color:var(--t)}
+table{width:100%;border-collapse:collapse;font-size:12px}
+td,th{padding:3px;text-align:center;border-bottom:1px solid var(--b)}td:first-child,th:first-child{text-align:left}
+th{color:var(--m);font-weight:600;font-size:11px}
+.log{max-height:200px;overflow:auto;font-size:13px}.log div{padding:2px 0;border-bottom:1px solid var(--b)}
+.log b{color:var(--g);margin-right:8px}
+.you{color:var(--bl)}.bot{color:var(--rd)}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}
+.cards .p{border-color:var(--g)}.cards h3{font-size:12px;margin:0 0 4px;font-family:inherit}
+@media(max-width:600px){.cards{grid-template-columns:1fr}}
+#map{width:100%;aspect-ratio:1;display:block;border:1px solid var(--b);border-radius:10px;background:var(--p)}
+.code{font:700 34px Georgia,serif;letter-spacing:6px;color:var(--g)}
+</style></head>
+<body><div class="w" id="app"></div>
+<script>
+const R={T:"ÜST KORİDOR",J:"ORMAN",M:"ORTA KORİDOR",B:"ALT KORİDOR",S:"DESTEK"},LN=Object.keys(R);
+const META=["Master Yi","Yone","Kai’Sa","Aatrox"],NERF=["Rumble","Ryze"];
+const C=("Kayle,T,40,80;Rumble,T,70,65;Gnar,T,65,60;Darius,T,75,60;Fiora,T,60,75;Garen,T,65,55;Ornn,T,55,70;Jax,T,60,78;Aatrox,T,72,68;"+
+"Master Yi,J,55,80;Zac,J,60,65;Jarvan IV,J,70,60;Xin Zhao,J,72,55;Lee Sin,J,70,65;Vi,J,65,62;Kayn,J,60,78;Viego,J,64,72;Nidalee,J,75,50;"+
+"Yone,M,62,76;Ryze,M,55,78;Cassiopeia,M,52,85;Aurora,M,66,64;Fizz,M,68,62;Ahri,M,66,66;Syndra,M,64,70;Zed,M,72,60;Viktor,M,52,80;Lux,M,60,64;"+
+"Caitlyn,B,72,64;Lucian,B,74,58;Kalista,B,70,60;Jinx,B,50,85;Ezreal,B,62,68;Vayne,B,48,88;Kai’Sa,B,60,80;Miss Fortune,B,68,66;"+
+"Leona,S,68,58;Nautilus,S,66,58;Janna,S,54,62;Thresh,S,64,64;Lulu,S,52,72;Blitzcrank,S,66,52;Soraka,S,48,66;Nami,S,56,64").split(";").map(s=>{
+ const[n,r,e,l]=s.split(","),t=META.includes(n)?"M":NERF.includes(n)?"N":"",a=t=="M"?3:t=="N"?-3:0;
+ return{n,r,e:+e+a,l:+l+a,t,k:n=="Kai’Sa"?"Kaisa":n.replace(/ /g,""),h:[...n].reduce((x,y)=>x*31+y.charCodeAt(0),7)%360}});
+const app=document.getElementById("app");
+let S=null,MODE=null,room=null,meId="h",view=null,SIM=null,simSeed=null,fi=0,spd=450,timer,code="",net=null,helloT,pushT;
+const rnd0=n=>Math.floor(Math.random()*n),oth=w=>w=="h"?"g":"h",fmt=s=>Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+const ME=()=>meId=="h"?0:1,nm=i=>i==ME()?"SEN":"RAKİP",nmw=w=>w==meId?"SEN":"RAKİP",cls=i=>i==ME()?"you":"bot";
+const fixMsg=t=>(t||"").replace(/§([hg01])/g,(m,x)=>x=="h"||x=="g"?nmw(x):nm(+x));
+const tile=c=>`<div class="art" style="--h:${c.h}"><span>${c.n.slice(0,2)}</span><img src="https://ddragon.leagueoflegends.com/cdn/img/champion/loading/${c.k}_0.jpg" alt="" loading="lazy" onerror="this.remove()">${c.t?`<i class="tag ${c.t}">${c.t=="M"?"META":"NERF"}</i>`:""}</div>`;
+const sc=c=>(c.e+c.l)/2,cap=w=>S.m[w]-(4-S.t[w].length);
+const botVal=i=>sc(C[i])+(S.t.g.every(x=>C[x].r!=C[i].r)?10:0);
+
+/* ---------- ağ ---------- */
+async function join(c,host){
+ try{const r=await claude.use("room");if(!r)throw 0;room=await r.join("lol-"+c)}catch(e){alert("Oda bağlantısı kurulamadı. Sayfanın giriş yapmış kullanıcılarla paylaşıldığından emin ol.");return false}
+ code=c;MODE=host?"host":"guest";meId=host?"h":"g";
+ room.on("st",m=>{if(m.isMe||MODE!="guest"||!m.data)return;clearInterval(helloT);S=m.data;sync();render()});
+ room.on("act",m=>{if(MODE=="host"&&!m.isMe)act("g",m.data)});
+ room.on("hello",m=>{if(MODE=="host"&&!m.isMe)push()});
+ room.onPeers(()=>{if(MODE=="host")push();render()});
+ if(host){S={ph:"wait"};pushT=setInterval(()=>S&&room.emit("st",S),2500)}
+ else{S=null;helloT=setInterval(()=>room.emit("hello",1),1500);room.emit("hello",1)}
+ render();return true}
+function peers(){try{return room?room.peers().length:0}catch(e){return 0}}
+function push(){sync();render();if(room&&MODE=="host")room.emit("st",S)}
+function send(a){if(MODE=="guest")room.emit("act",a);else act(meId,a)}
+
+/* ---------- oyun mantığı (host) ---------- */
+function newGame(){S={ph:"draft",t:{h:[],g:[]},m:{h:20,g:20},round:0,starter:"h",msg:""};nextRound()}
+function newPack(){const u=[...S.t.h,...S.t.g],a=C.map((c,i)=>i).filter(i=>!u.includes(i));for(let i=a.length-1;i>0;i--){const j=rnd0(i+1);[a[i],a[j]]=[a[j],a[i]]}return a.slice(0,10)}
+function nextRound(){
+ if(S.t.h.length==5&&S.t.g.length==5)return toLanes();
+ S.round++;S.pack=newPack();S.bid=0;S.last=null;S.phase="bid";S.win=null;S.price=0;S.msg="";
+ for(const w of["h","g"])if(S.t[w].length==5){S.win=oth(w);S.phase="pick";S.msg=`§${w} takımı tamamladı, §${oth(w)} ücretsiz seçiyor.`;push();if(MODE=="bot"&&S.win=="g")setTimeout(botPick,1000);return}
+ S.turn=S.starter;S.starter=oth(S.starter);
+ if(MODE=="bot"){const best=Math.max(...S.pack.map(botVal));S.bmax=Math.max(0,Math.min(cap("g"),Math.round((best-45)*.2*(.7+Math.random()*.6))))}
+ push();if(MODE=="bot"&&S.turn=="g")setTimeout(botMove,800)}
+function end(w){if(S.phase!="bid")return;S.win=w;S.price=Math.max(1,S.bid);S.phase="pick";S.msg=`§${w} ${S.price} altınla kazandı.`;push();if(MODE=="bot"&&w=="g")setTimeout(botPick,1000)}
+function botMove(){if(S.phase!="bid"||S.turn!="g")return;
+ if(S.bid+1<=S.bmax){S.bid=Math.min(S.bid+1+rnd0(2),S.bmax);S.last="g";S.turn="h";S.msg="§g teklifi artırdı.";push()}else end("h")}
+function botPick(){S.pick=null;doPick(S.pack.reduce((a,i)=>botVal(i)>botVal(a)?i:a))}
+function doPick(ci){const w=S.win;S.t[w].push(ci);S.m[w]-=S.price;S.msg=`§${w} ${C[ci].n} aldı.`;S.phase="done";push();setTimeout(nextRound,1500)}
+function assign(l){const u=new Set(),o=l.map(i=>u.has(C[i].r)?null:(u.add(C[i].r),C[i].r));return o.map(r=>{if(r)return r;const x=LN.find(z=>!u.has(z));u.add(x);return x})}
+function toLanes(){S.ph="lanes";S.l={h:assign(S.t.h),g:assign(S.t.g)};S.rdy={h:0,g:MODE=="bot"?1:0};push()}
+function act(w,a){if(!S)return;
+ if(a.t=="bid"&&S.ph=="draft"&&S.phase=="bid"&&S.turn==w&&[1,2,5].includes(a.n)&&S.bid+a.n<=cap(w)){S.bid+=a.n;S.last=w;S.turn=oth(w);S.msg="";push();if(MODE=="bot")setTimeout(botMove,800)}
+ else if(a.t=="pass"&&S.ph=="draft"&&S.turn==w)end(oth(w));
+ else if(a.t=="pick"&&S.ph=="draft"&&S.phase=="pick"&&S.win==w&&S.pack[a.i]!==undefined)doPick(S.pack[a.i]);
+ else if(a.t=="lane"&&S.ph=="lanes"&&LN.includes(a.v)){S.l[w][a.i]=a.v;S.rdy[w]=0;push()}
+ else if(a.t=="ready"&&S.ph=="lanes"&&new Set(S.l[w]).size==5){S.rdy[w]=1;if(S.rdy.h&&S.rdy.g){S.seed=rnd0(1e9);S.ph="sim"}push()}
+ else if(a.t=="new"&&MODE!="guest"&&w=="h")newGame()}
+
+/* ---------- simülasyon ---------- */
+function mb(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function simulate(A,B,seed){
+ const RN=mb(seed),rnd=n=>Math.floor(RN()*n);
+ const mk=u=>({u:u.map(x=>({...x,k:0,d:0,a:0,g:500,dmg:0})),kills:0,tw:0,dr:0,bar:0,inh:0,buff:0,gold:2500}),T=[mk(A),mk(B)];
+ const frames=[],ev=[],dl=[];let t=0,win=null,nextDr=5,lastBar=-99,fb=false;
+ const at=()=>(t-1)*60+rnd(60),add=(type,team,txt)=>ev.push({s:at(),type,team,txt});
+ const str=i=>{const m=T[i];let s=0;m.u.forEach(x=>{s+=(x.c.e+(x.c.l-x.c.e)*Math.min(t,35)/35)*x.fit*(1+x.g/60000)});
+  return s/5*(m.buff>0?1.12:1)*(1+Math.max(-.15,Math.min(.15,(m.kills-T[1-i].kills)*.006)))};
+ const kill=(w,l)=>{const W=T[w],L=T[l],wt=W.u.map(x=>(x.lane=="B"||x.lane=="M"?1.4:1)*x.c.e*x.fit),tot=wt.reduce((a,b)=>a+b);
+  let r=RN()*tot,ki=0;while(r>wt[ki]&&ki<4){r-=wt[ki];ki++}
+  const k=W.u[ki],v=L.u[rnd(5)];k.k++;v.d++;k.g+=300;k.dmg+=1500+rnd(1500);W.kills++;W.gold+=300;
+  W.u.forEach(x=>{if(x!=k&&RN()<.55){x.a++;x.g+=120;x.dmg+=500+rnd(900)}});
+  dl.push({t,team:l});if(!fb){fb=true;add("fb",w,`${v.c.n}, ${k.c.n} tarafından düştü.`)}};
+ while(win===null&&t<45){t++;
+  T.forEach(m=>{m.gold+=1500;m.u.forEach(x=>{x.g+=300;x.dmg+=250+rnd(250)})});
+  if(RN()<.62){const s0=str(0)**3,s1=str(1)**3,w=RN()<s0/(s0+s1)?0:1,l=1-w;
+   const kw=1+rnd(4),kl=rnd(Math.min(kw,2)+1);for(let i=0;i<kw;i++)kill(w,l);for(let i=0;i<kl;i++)kill(l,w);
+   const W=T[w];
+   if(t>=nextDr){W.dr++;nextDr=t+5;add("dr",w,`§${w}, EJDERHA aldı!`)}
+   else if(t>=20&&t-lastBar>=7&&RN()<.5){W.bar++;W.buff=3;lastBar=t;add("bar",w,`§${w}, BARON aldı!`)}
+   if(RN()<.7&&W.tw<11){W.tw++;add("tw",w,`§${w}, ${["ÜST","ORTA","ALT"][rnd(3)]} kulesini yıktı.`)}
+   while(W.inh<Math.min(3,Math.floor(W.tw/3))){W.inh++;add("inh",w,`§${w}, ${["ORTA","ALT","ÜST"][W.inh-1]} inhibitörünü yıktı.`)}
+   if(W.tw>=9&&RN()<.55){win=w;add("nex",w,`§${w}, Nexus’u yıkarak kazandı!`)}}
+  T.forEach(m=>m.buff--);
+  frames.push({t,k:T.map(m=>m.kills),g:T.map(m=>m.gold),tw:T.map(m=>m.tw),dr:T.map(m=>m.dr),bar:T.map(m=>m.bar),inh:T.map(m=>m.inh),u:T.map(m=>m.u.map(x=>({k:x.k,d:x.d,a:x.a,g:x.g})))})}
+ if(win===null){win=T[0].tw>T[1].tw?0:T[1].tw>T[0].tw?1:rnd(2);ev.push({s:t*60,type:"nex",team:win,txt:`Süre doldu, §${win} kule üstünlüğüyle kazandı.`})}
+ return{T,frames,ev,dl,win,end:t}}
+function sync(){
+ if(S&&S.ph=="sim"&&simSeed!==S.seed){simSeed=S.seed;const U=(l,r)=>l.map((ci,i)=>({c:C[ci],lane:r[i],fit:C[ci].r==r[i]?1:.8}));
+  SIM=simulate(U(S.t.h,S.l.h),U(S.t.g,S.l.g),S.seed);fi=0;view=null;play()}
+ if(S&&S.ph!="sim"){simSeed=null;SIM=null;view=null;clearInterval(timer)}}
+function play(){clearInterval(timer);timer=setInterval(()=>{if(fi<SIM.frames.length-1){fi++;render()}else clearInterval(timer)},spd)}
+const faster=()=>{spd=spd==450?130:450;play();render()},skip=()=>{clearInterval(timer);fi=SIM.frames.length-1;render()},analysis=()=>{clearInterval(timer);view="ana";render()};
+
+/* ---------- harita ---------- */
+const PATH={T:[[40,420],[40,40],[420,40]],M:[[40,420],[420,40]],B:[[40,420],[420,420],[420,40]]},BLUE="#2a9df4",RED="#e5455f";
+function pt(l,u){const p=PATH[l],L=[];let s=0;for(let i=1;i<p.length;i++){const d=Math.hypot(p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]);L.push(d);s+=d}
+ let x=Math.max(0,Math.min(1,u))*s;for(let i=0;i<L.length;i++){if(x<=L[i]||i==L.length-1){const k=Math.min(1,x/L[i]);return[p[i][0]+(p[i+1][0]-p[i][0])*k,p[i][1]+(p[i+1][1]-p[i][1])*k]}x-=L[i]}}
+function drawMap(f){const cv=document.getElementById("map");if(!cv)return;cv.width=cv.height=460;const x=cv.getContext("2d"),cs=getComputedStyle(cv),bd=cs.getPropertyValue("--b")||"#888";
+ x.lineCap="round";x.strokeStyle="#2d8fd0";x.globalAlpha=.45;x.lineWidth=34;x.beginPath();x.moveTo(40,40);x.lineTo(420,420);x.stroke();
+ x.globalAlpha=1;x.strokeStyle=bd;x.lineWidth=26;for(const l of"TMB"){const p=PATH[l];x.beginPath();x.moveTo(...p[0]);p.slice(1).forEach(q=>x.lineTo(...q));x.stroke()}
+ const dot=(a,b,r,c,sq)=>{x.fillStyle=c;x.beginPath();sq?x.rect(a-r,b-r,2*r,2*r):x.arc(a,b,r,0,7);x.fill()};
+ const base=[[40,420],[420,40]],nt=[[[72,420],[40,388]],[[388,40],[420,72]]];
+ for(let i=0;i<2;i++){const col=i?RED:BLUE,lost=f.tw[1-i];
+  dot(base[i][0],base[i][1],17,col);
+  for(let r=0;r<3;r++)["M","B","T"].forEach((l,li)=>{const idx=r*3+li,[a,b]=pt(l,i?.62+.13*r:.38-.13*r);dot(a,b,6,idx<lost?"#777":col)});
+  nt[i].forEach((q,j)=>dot(q[0],q[1],6,9+j<lost?"#777":col));
+  ["M","B","T"].forEach((l,li)=>{const[a,b]=pt(l,i?.94:.06);dot(a,b,5,li<f.inh[1-i]?"#777":col,1)})}
+ const d=f.tw[0]-f.tw[1],camps=[[130,330],[330,130],[150,150],[310,310]];
+ x.font="bold 9px sans-serif";x.textAlign="center";x.textBaseline="middle";
+ for(let i=0;i<2;i++)SIM.T[i].u.forEach((u,j)=>{const L=u.lane;let a,b;
+  if(L=="J"){[a,b]=camps[(f.t+i*2+j)%4]}
+  else{const ln=L=="S"?"B":L,u0=Math.max(.2,Math.min(.8,.5+d*.03+.07*Math.sin(f.t*.9+(L=="M"?1:L=="T"?2:3)))),off=L=="S"?-.03:0;[a,b]=pt(ln,u0+(i?.04:-.04)+off)}
+  dot(a,b,9,i?RED:BLUE);x.fillStyle="#fff";x.fillText(u.c.n[0],a,b)})}
+
+/* ---------- ekranlar ---------- */
+function teamP(w){const l=S.t[w];return `<div class="p"><b class="${w==meId?"you":"bot"}">${nmw(w)}</b><span style="float:right">Kalan <b>${S.m[w]} altın</b></span>`+
+ [0,1,2,3,4].map(i=>{const c=C[l[i]];return `<div class="slot">${c?tile(c)+`<div><b>${c.n}</b><small>${R[c.r]}</small></div>`:`<span style="color:var(--m)">Boş slot</span>`}</div>`}).join("")+`</div>`}
+function lobby(){const ok=typeof claude!="undefined";return `<h1>Şampiyon Müzayedesi</h1><div class="two">
+ <div class="p"><h3>Tek kişilik</h3><p>Bota karşı oyna.</p><button class="main" onclick="MODE='bot';meId='h';newGame()">Botla oyna</button></div>
+ <div class="p"><h3>İki oyunculu</h3>${ok?`<p>Bir oda kur ya da arkadaşının kodunu gir.</p><div class="bar"><button class="main" onclick="join(Math.random().toString(36).slice(2,7),1)">Oda kur</button>
+ <input id="rc" placeholder="Oda kodu" size="8" maxlength="8" aria-label="Oda kodu"><button onclick="join(document.getElementById('rc').value.trim().toLowerCase().replace(/[^a-z0-9]/g,''),0)">Odaya katıl</button></div>`:`<p>Oda sistemi yalnızca claude.ai üzerinde yayınlanan sayfada çalışır.</p>`}</div></div>`}
+function wait(){return `<h1>Oda hazır</h1><div class="p"><p>Arkadaşına bu kodu ver:</p><div class="code">${code.toUpperCase()}</div><p>${peers()>=2?"Rakip odada.":"Rakip bekleniyor…"}</p>
+ <button class="main" ${peers()>=2?"":"disabled"} onclick="newGame()">Oyunu başlat</button></div>`}
+function draft(){const mine=S.phase=="pick"&&S.win==meId,me=S.phase=="bid"&&S.turn==meId,o=oth(meId);
+ return `<h1>Şampiyon Müzayedesi</h1><div class="row">${teamP(meId)}<div>
+ <div class="p"><b>Tur ${S.round}</b> · ${S.t.h.length+S.t.g.length}/10 şampiyon seçildi
+ ${S.phase=="bid"?`<div class="big">${S.bid} altın</div><div>${S.last?"Son teklif: "+nmw(S.last):"Henüz teklif yok"}. ${me?"Sıra sende:":"Rakip düşünüyor…"}</div>
+ <div class="bar">${[1,2,5].map(n=>`<button ${me&&S.bid+n<=cap(meId)?"":"disabled"} onclick="send({t:'bid',n:${n}})">+${n}</button>`).join("")}<button ${me?"":"disabled"} onclick="send({t:'pass'})">Pas</button></div>`:""}
+ <div style="margin-top:6px;color:var(--g)">${fixMsg(S.msg)}${mine?" Paketten bir şampiyon seç.":""}</div></div>
+ <div class="grid">${S.pack.map((i,k)=>{const c=C[i];return `<div class="card ${mine?"pk":""}" ${mine?`tabindex=0 onclick="send({t:'pick',i:${k}})" onkeydown="if(event.key=='Enter')send({t:'pick',i:${k}})"`:""}>${tile(c)}<b>${c.n}</b><small>${R[c.r]}</small></div>`}).join("")}</div>
+ </div>${teamP(o)}</div>`}
+function lanesH(){const o=oth(meId),ok=new Set(S.l[meId]).size==5;
+ return `<h1>Son takım hazırlığı</h1><p>Koridorları ayarla. Doğal koridoru dışında oynayan şampiyon %20 güç kaybeder.</p><div class="two"><div class="p"><b class="you">SEN</b>`+
+ S.t[meId].map((ci,i)=>`<div class="slot">${tile(C[ci])}<div style="flex:1"><b>${C[ci].n}</b><small>Doğal rol: ${R[C[ci].r]}</small></div><select aria-label="${C[ci].n} koridoru" ${S.rdy[meId]?"disabled":""} onchange="send({t:'lane',i:${i},v:this.value})">${LN.map(k=>`<option value="${k}" ${k==S.l[meId][i]?"selected":""}>${R[k]}</option>`).join("")}</select></div>`).join("")+
+ `<div class="bar">${ok?"":`<span class="bot">Her koridor bir kez seçilmeli.</span>`}<button class="main" ${ok&&!S.rdy[meId]?"":"disabled"} onclick="send({t:'ready'})">${S.rdy[meId]?"Hazırsın":"Hazırım"}</button></div></div>
+ <div class="p"><b class="bot">RAKİP</b>`+S.t[o].map(ci=>`<div class="slot">${tile(C[ci])}<div><b>${C[ci].n}</b></div></div>`).join("")+`<p>${S.rdy[o]?"Rakip hazır ✓":"Rakip koridorları seçiyor…"}</p></div></div>`}
+function board(i,f){const T=SIM.T[i];return `<div class="p"><b class="${cls(i)}">${nm(i)}</b><table><tr><th>Şampiyon<th>K<th>D<th>A<th>Altın</tr>`+
+ T.u.map((x,j)=>{const s=f.u[i][j];return `<tr><td>${x.c.n}<td>${s.k}<td>${s.d}<td>${s.a}<td>${(s.g/1000).toFixed(1)}K</tr>`}).join("")+`</table></div>`}
+function simH(){const f=SIM.frames[fi],done=fi==SIM.frames.length-1,m=ME(),box=i=>`<div class="stats"><div>Ejder<b>${f.dr[i]}</b></div><div>Baron<b>${f.bar[i]}</b></div><div>Kule<b>${f.tw[i]}</b></div><div>İnhibitör<b>${f.inh[i]}/3</b></div></div>`;
+ const evs=SIM.ev.filter(e=>e.s<=f.t*60||done).reverse();
+ return `<h1>Canlı simülasyon</h1><div class="p" style="text-align:center"><span class="big ${cls(0)}">${f.k[0]}</span> <span style="margin:0 14px">${fmt(done?SIM.end*60:f.t*60)}</span> <span class="big ${cls(1)}">${f.k[1]}</span>
+ <div style="color:var(--m)">Takım altını: ${(f.g[0]/1000).toFixed(1)}K · ${(f.g[1]/1000).toFixed(1)}K · Mavi: ${nm(0)}, Kırmızı: ${nm(1)}</div></div>
+ <div class="sim"><div>${box(0)}${board(0,f)}</div><div><canvas id="map" role="img" aria-label="Canlı harita"></canvas></div><div>${box(1)}${board(1,f)}</div></div>
+ <div class="p" style="margin-top:10px"><b>Maç olayları</b><div class="log">${evs.map(e=>`<div><b>${fmt(e.s)}</b><span class="${cls(e.team)}">${fixMsg(e.txt)}</span></div>`).join("")||"Maç başladı…"}</div></div>
+ <div class="bar">${done?`<button class="main" onclick="analysis()">Maç analizini gör</button>`:`<button onclick="faster()">Hız: ${spd==450?"×1":"×3"}</button><button onclick="skip()">Sonuca atla</button>`}</div>`}
+function analysisH(){const W=SIM.win,L=1-W,TW=SIM.T[W],TL=SIM.T[L],kd=TW.kills-TL.kills,ev=SIM.ev;
+ const e=ev.find(x=>x.team==W&&x.type=="inh")||ev.find(x=>x.team==W&&x.type=="bar")||ev.find(x=>x.team==W&&x.type=="dr");
+ const gd=TW.gold-TL.gold,n4=SIM.dl.filter(x=>x.team==L&&x.t>SIM.end-4).length;
+ const all=[...SIM.T[0].u.map(x=>({...x,tm:0})),...SIM.T[1].u.map(x=>({...x,tm:1}))],sc2=x=>x.k*2+x.a-x.d*1.5+x.dmg/5000,mv=all.reduce((a,x)=>sc2(x)>sc2(a)?x:a);
+ const card=(h,t)=>`<div class="p"><h3>${h}</h3>${t}</div>`,host=MODE!="guest";
+ return `<h1>Maç analizi</h1><div class="two"><div class="p"><b class="${cls(0)}">${nm(0)}</b><br>${SIM.T[0].kills} kill · ${SIM.T[0].tw} kule</div><div class="p"><b class="${cls(1)}">${nm(1)}</b><br>${SIM.T[1].kills} kill · ${SIM.T[1].tw} kule</div></div>
+ <h2>${nm(W)} neden kazandı?</h2><div class="cards">
+ ${card("Maçın kararı",`${nm(W)}, ${kd>0?kd+" kill avantajıyla":kd<0?-kd+" kill geride olmasına rağmen":"eşit killle"} maçı ${SIM.end}. dakikada bitirdi. Skor ${TW.kills}–${TL.kills}. Maçı kill sayısı değil, kule ve Nexus baskısı belirledi.`)}
+ ${card("Kritik kırılma anı",e?`${fmt(e.s)}: ${fixMsg(e.txt)} Maçın yönü bu noktada netleşti.`:"Net bir kırılma anı yok, maç küçük farklarla ilerledi.")}
+ ${card("Ekonomi ve geri dönüş",`Toplam kazanılan altın farkı ${Math.abs(gd).toLocaleString("tr-TR")}, ${nm(gd>=0?W:L)} lehine. ${gd>=0?"Altın üstünlüğü objektif baskısını destekledi.":"Altın geride olsa da objektifler öne geçirdi."}`)}
+ ${card("Objektif ve baskı",`Ejder ${TW.dr}–${TL.dr}, Baron ${TW.bar}–${TL.bar}, yıkılan kule ${TW.tw}–${TL.tw}, inhibitör ${TW.inh}–${TL.inh} (kazanan–kaybeden).`)}
+ ${card(nm(L)+" son savunması",`Son 4 dakikada ${nm(L)} ${n4} kez düştü. ${n4>=3?"Final savunmasında oyuncu kaybı Nexus hattının korunmasını imkânsız kıldı.":"Savunma tamamen çökmedi ama kule hattı tutulamadı."}`)}
+ ${card("Maçın MVP’si",`${mv.c.n} (${nm(mv.tm)}): ${mv.k}/${mv.d}/${mv.a} KDA, ${mv.dmg.toLocaleString("tr-TR")} hasar.`)}
+ </div><h2>Kritik anlar</h2><div class="p log" style="max-height:300px">${ev.map(x=>`<div><b>${fmt(x.s)}</b><span class="${cls(x.team)}">${fixMsg(x.txt)}</span></div>`).join("")}</div>
+ <div class="bar"><button onclick="view=null;render()">Skor tablosuna dön</button>${host?`<button class="main" onclick="act('h',{t:'new'})">Yeni oyun</button>`:`<span>Yeni oyunu oda kurucusu başlatır.</span>`}</div>`}
+function render(){const sc=view||(S?S.ph:"lobby");
+ app.innerHTML=!S?(room?`<h1>Şampiyon Müzayedesi</h1><div class="p">Oda ${code.toUpperCase()}: kurucuya bağlanılıyor…</div>`:lobby()):{wait,draft,lanes:lanesH,sim:()=>SIM?simH():"",ana:()=>SIM?analysisH():""}[sc]();
+ if(sc=="sim"&&SIM)drawMap(SIM.frames[fi])}
+render();
+</script></body></html>
